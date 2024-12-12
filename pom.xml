@@ -30,6 +30,20 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+		<!-- HttpClient 发送 HTTP 请求 -->
+		<!-- HttpClient 5.x 版本 -->
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>5.3.1</version> <!-- 请根据需要调整版本 -->
+		</dependency>
+
+		<!-- Jackson 用于解析 JSON -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.17.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
