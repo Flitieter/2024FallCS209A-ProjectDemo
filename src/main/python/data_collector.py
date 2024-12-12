@@ -133,7 +133,7 @@ def fetch_comments_and_save(answer_id, answer, session):
     for comment_data in comments_data['items']:
         creation_date = datetime.utcfromtimestamp(comment_data['creation_date']).replace(tzinfo=utc)
         comment = Comment(
-            answer_id=answer_id,
+            answer_id=answer.id,
             comment_id=comment_data['comment_id'],
             body=comment_data.get('body', ''),
             creation_date=creation_date
