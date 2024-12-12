@@ -194,8 +194,8 @@ def fetch_comments_and_save(answer_id, answer, session):
 
 # 主函数：抓取数据并存入数据库
 def collect_data():
-    page = 1
-    while page <= 10:  # 假设抓取10页的数据
+    page = 11
+    while page <= 11:  # 假设抓取10页的数据
         print(f"抓取第 {page} 页的数据")
         data = fetch_threads(page=page)
         save_threads_to_db(data)
