@@ -26,6 +26,8 @@ class Thread(Base):
     tags = Column(ARRAY(String))
     creation_date = Column(TIMESTAMP(timezone=True))  # 使用时区感知的时间
     score = Column(Integer)
+    owner_id = Column(Integer)  # 新增：拥有者的用户ID
+    owner_reputation = Column(Integer)  # 新增：拥有者的声誉
 
     answers = relationship("Answer", backref="thread", cascade="all, delete-orphan")  # 外键关系
 
@@ -38,6 +40,9 @@ class Answer(Base):
     body = Column(Text)
     score = Column(Integer)
     creation_date = Column(TIMESTAMP(timezone=True))  # 使用时区感知的时间
+    owner_id = Column(Integer)  # 拥有者的用户ID
+    owner_reputation = Column(Integer)  # 拥有者的声誉
+    is_accepted = Column(Integer)  # 新增：是否被接受（0 或 1）
 
     comments = relationship("Comment", backref="answer", cascade="all, delete-orphan")  # 外键关系
 
@@ -49,6 +54,8 @@ class Comment(Base):
     comment_id = Column(Integer, unique=True)  # 确保评论ID唯一
     body = Column(Text)
     creation_date = Column(TIMESTAMP(timezone=True))  # 使用时区感知的时间
+    owner_id = Column(Integer)  # 新增：拥有者的用户ID
+    owner_reputation = Column(Integer)  # 新增：拥有者的声誉
 
 # 创建所有表
 Base.metadata.create_all(engine)
@@ -67,30 +74,43 @@ def fetch_threads(tag='java', page=1, pagesize=100):
     response = requests.get(url, params=params)
     return response.json()
 
-# 数据存储函数
+# 获取并保存问题数据
 def save_threads_to_db(data):
     session = Session()
     if 'items' in data:
         for thread_data in data['items']:
             # 插入问题数据
             creation_date = datetime.utcfromtimestamp(thread_data['creation_date']).replace(tzinfo=utc)
+
+            # 使用 get 方法安全地提取 owner_id 和 owner_reputation
+            owner = thread_data.get('owner', {})
+            owner_id = owner.get('user_id') if owner else None
+            owner_reputation = owner.get('reputation') if owner else None
+
             thread = Thread(
                 question_id=thread_data['question_id'],
                 title=thread_data['title'],
                 body=thread_data.get('body', ''),
                 tags=thread_data['tags'],
                 creation_date=creation_date,
-                score=thread_data['score']
+                score=thread_data['score'],
+                owner_id=owner_id,
+                owner_reputation=owner_reputation
             )
-            session.add(thread)
-            session.commit()
 
-            # 获取答案
+            try:
+                session.add(thread)
+                session.commit()
+            except Exception as e:
+                print(f"Error while adding thread {thread_data['question_id']} to the database: {e}")
+                session.rollback()  # 回滚事务
+                continue  # 跳过当前线程，继续处理下一个
+
+            # 获取答案并保存
             fetch_answers_and_save(thread_data['question_id'], thread, session)
     else:
         print("返回的数据没有 'items' 键，请检查 API 响应")
     session.close()
-
 
 # 获取并保存答案
 def fetch_answers_and_save(question_id, thread, session):
@@ -106,18 +126,36 @@ def fetch_answers_and_save(question_id, thread, session):
 
     for answer_data in answers_data['items']:
         creation_date = datetime.utcfromtimestamp(answer_data['creation_date']).replace(tzinfo=utc)
+
+        # 安全地获取 owner_id 和 owner_reputation
+        owner = answer_data.get('owner', {})
+        owner_id = owner.get('user_id') if owner else None
+        owner_reputation = owner.get('reputation') if owner else None
+
+        # 获取是否被接受
+        is_accepted = answer_data.get('is_accepted', False)  # 默认值为 False
+
         answer = Answer(
             thread_id=thread.id,
             answer_id=answer_data['answer_id'],
             body=answer_data.get('body', ''),
             score=answer_data['score'],
-            creation_date=creation_date
+            creation_date=creation_date,
+            owner_id=owner_id,
+            owner_reputation=owner_reputation,
+            is_accepted=1 if is_accepted else 0  # 将布尔值转换为 1 或 0
         )
-        session.add(answer)
-        session.commit()
+        try:
+            session.add(answer)
+            session.commit()
+        except Exception as e:
+            print(f"Error while adding answer {answer_data['answer_id']} to the database: {e}")
+            session.rollback()  # 回滚事务
+            continue  # 跳过当前答案，继续处理下一个
 
         # 获取并保存评论
         fetch_comments_and_save(answer_data['answer_id'], answer, session)
+
 
 # 获取并保存评论
 def fetch_comments_and_save(answer_id, answer, session):
@@ -128,18 +166,31 @@ def fetch_comments_and_save(answer_id, answer, session):
     }
     response = requests.get(url, params=params)
     comments_data = response.json()
-    print(comments_data)
 
     for comment_data in comments_data['items']:
         creation_date = datetime.utcfromtimestamp(comment_data['creation_date']).replace(tzinfo=utc)
+
+        # 安全地获取 owner_id 和 owner_reputation
+        owner = comment_data.get('owner', {})
+        owner_id = owner.get('user_id') if owner else None
+        owner_reputation = owner.get('reputation') if owner else None
+
         comment = Comment(
             answer_id=answer.id,
             comment_id=comment_data['comment_id'],
             body=comment_data.get('body', ''),
-            creation_date=creation_date
+            creation_date=creation_date,
+            owner_id=owner_id,
+            owner_reputation=owner_reputation
         )
-        session.add(comment)
-        session.commit()
+        try:
+            session.add(comment)
+            session.commit()
+        except Exception as e:
+            print(f"Error while adding comment {comment_data['comment_id']} to the database: {e}")
+            session.rollback()  # 回滚事务
+            continue  # 跳过当前评论，继续处理下一个
+
 
 # 主函数：抓取数据并存入数据库
 def collect_data():
