@@ -3,6 +3,7 @@ package CS209A.project.demo.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+@Table(name = "comments")
 @Entity
 public class Comment {
 

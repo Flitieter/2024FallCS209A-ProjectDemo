@@ -3,6 +3,7 @@ package CS209A.project.demo.model;
 import jakarta.persistence.*;
 import java.util.List;
 
+@Table(name = "threads")
 @Entity
 public class Thread {
 
@@ -16,10 +17,11 @@ public class Thread {
     private String title;
     private String body;
 
+    // 使用 List<String> 来存储标签
     @ElementCollection
     @CollectionTable(name = "thread_tags", joinColumns = @JoinColumn(name = "thread_id"))
     @Column(name = "tag")
-    private List<String> tags;  // 用于存储多个标签
+    private List<String> tags;  // 使用 List<String> 存储标签
 
     private Integer score;
 
