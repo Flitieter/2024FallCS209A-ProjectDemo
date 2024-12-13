@@ -18,6 +18,7 @@ public class Comment {
     @Column(unique = true)
     private Integer commentId;
 
+    @Column(name = "body",columnDefinition = "text")
     private String body;
 
     @Column(name = "owner_id")

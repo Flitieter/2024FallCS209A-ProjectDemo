@@ -15,6 +15,8 @@ public class Thread {
     private Integer questionId;
 
     private String title;
+
+    @Column(name = "body",columnDefinition = "text")
     private String body;
 
     // 使用 List<String> 来存储标签

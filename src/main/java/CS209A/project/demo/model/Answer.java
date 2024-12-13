@@ -18,6 +18,7 @@ public class Answer {
     @Column(unique = true)
     private Integer answerId;
 
+    @Column(name = "body",columnDefinition = "text")
     private String body;
     private Integer score;
 
