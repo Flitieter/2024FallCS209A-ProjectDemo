@@ -4,6 +4,7 @@ import CS209A.project.demo.controller.JavatopicsImpl;
 import CS209A.project.demo.repository.AnswerRepository;
 import CS209A.project.demo.repository.CommentRepository;
 import CS209A.project.demo.repository.ThreadRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import CS209A.project.demo.model.Answer;
@@ -40,9 +41,107 @@ public class ForumService {
     public List<Comment> getCommentsByAnswer(Long answerId) {
         return commentRepository.findAllByAnswerId(answerId);
     }
+    public Map<Integer,Integer> getUserReputation(){
+        List<Thread> threads=threadRepository.findAll();
+        List<Answer> answers=answerRepository.findAll();
+        List<Comment> comments=commentRepository.findAll();
+        Map<Integer, Integer> userReputation=new HashMap<>();
+        threads.forEach(thread -> {
+            if(thread.getOwnerId()!=null){
+                userReputation.put(thread.getOwnerId(),thread.getOwnerReputation());
+            }
 
+        });
+        answers.forEach(answer -> {
+            if(answer.getOwnerId()!=null){
+                userReputation.put(answer.getOwnerId(),answer.getOwnerReputation());
+            }
+        });
+        comments.forEach(comment -> {
+            if(comment.getOwnerId()!=null){
+                userReputation.put(comment.getOwnerId(),comment.getOwnerReputation());
+            }
+        });
+        List<Map.Entry<Integer, Integer>> sortedList = userReputation.entrySet()
+                .stream()  // 将 Map 转换为 Stream
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))  // 按值升序排序
+                .toList();  // 收集成 List
+        System.out.println(sortedList.size()+" "+sortedList.get(sortedList.size()/2));
+        System.out.println(sortedList);
+        return userReputation;
+    }
+    public List<Answer> findHigherReputationUser(Integer score){
+        List<Answer> answers= answerRepository.findHigherReputationUser(score);
+        System.out.println("DONE");
+        answers.forEach((answer)->{System.out.println(answer.getAnswerId()+" "+answer.getOwnerReputation());});
+        return answers;
+    }
+    private List<String> cleanString(String input){
+        String cleanedInput = input.replaceAll("[{}]", "");  // 去掉花括号
+        String[] items = cleanedInput.split(",");  // 使用逗号分割
 
-    // 查询包含指定单词的线程和回答，并统计所有相关的单词频率
+        // 将数组转换为 List
+        List<String> list = Arrays.asList(items);
+
+        // 打印结果
+        return list;
+    }
+    public List<Map.Entry<String, Integer>> getHotEngagementTopics(int score){
+        List<Answer> answers=answerRepository.findHigherReputationUser(score);
+        List<Comment> comments=commentRepository.findHigherReputationUser(score);
+        List<Thread> threads=threadRepository.findAll();
+
+        Map<Long,Integer> Count=new HashMap<>();
+        for(Answer answer:answers){
+            long thread_id=answer.getThread().getId();
+            if(Count.containsKey(thread_id)){
+                Count.put(thread_id,Count.get(thread_id)+1);
+            }
+            else{
+                Count.put(thread_id,1);
+            }
+        }
+
+        for(Comment comment:comments){
+            long thread_id=comment.getAnswer().getThread().getId();
+            if(Count.containsKey(thread_id)){
+                Count.put(thread_id,Count.get(thread_id)+1);
+            }
+            else{
+                Count.put(thread_id,1);
+            }
+        }
+
+        Map<String,Integer> tags_freq=new HashMap<>();
+        for(Thread thread:threads){
+            long thread_id=thread.getId();
+            if(Count.containsKey(thread_id)){
+                int times=Count.get(thread_id);
+                List<String> tags=cleanString(thread.getTags());
+                for(String tag : tags){
+                    if(tags_freq.containsKey(tag)){
+                        tags_freq.put(tag,tags_freq.get(tag)+times);
+                    }
+                    else{
+                        tags_freq.put(tag,times);
+                    }
+                }
+            }
+        }
+
+        // 打印排序后的结果
+        return tags_freq.entrySet()
+                .stream()  // 将 Map 转换为 Stream
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))  // 按值升序排序
+                .toList();
+    }
+    public List<Map.Entry<String, Integer>> getAllTags(){
+        List<Thread> threads=threadRepository.findAll();
+        List<String> tags=new ArrayList<>();
+        threads.forEach(thread -> {tags.add(thread.getTags());});
+        JavatopicsImpl javatopics=new JavatopicsImpl();
+        return javatopics.Query(tags);
+    }
     public Map<String, Integer> getWordFrequencyInTitlesAndAnswers(String word) {
         // 查找包含指定单词的线程标题和正文，或者包含指定单词的回答
         List<Thread> threads = threadRepository.findByTitleContainingOrBodyContaining(word, word);
@@ -130,11 +229,4 @@ public class ForumService {
         }
     }
 
-    public List<Map.Entry<String, Integer>> getAllTags(){
-        List<Thread> threads=threadRepository.findAll();
-        List<String> tags=new ArrayList<>();
-        threads.forEach(thread -> {tags.add(thread.getTags());});
-        JavatopicsImpl javatopics=new JavatopicsImpl();
-        return javatopics.Query(tags);
-    }
 }
