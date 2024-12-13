@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import CS209A.project.demo.model.Answer;
 import CS209A.project.demo.model.Comment;
 import CS209A.project.demo.model.Thread;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/forum")
@@ -18,6 +21,11 @@ public class ForumController {
     @GetMapping("/threads")
     public List<Thread> getAllThreads() {
         return forumService.getAllThreads();
+    }
+
+    @GetMapping("/threads/tags")
+    public List<Map.Entry<String, Integer>> findAllTags(){
+        return forumService.getAllTags();
     }
 
     @GetMapping("/answers/{threadId}")

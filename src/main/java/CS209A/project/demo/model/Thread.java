@@ -8,22 +8,24 @@ import java.util.List;
 public class Thread {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "thread_id_seq")
+    @SequenceGenerator(name = "thread_id_seq", sequenceName = "threads_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(unique = true)
+    @Column(name = "question_id", unique = true)
     private Integer questionId;
 
     private String title;
 
-    @Column(name = "body",columnDefinition = "text")
+    @Column(name = "body", columnDefinition = "text")
     private String body;
 
     // 使用 List<String> 来存储标签
-    @ElementCollection
-    @CollectionTable(name = "thread_tags", joinColumns = @JoinColumn(name = "thread_id"))
-    @Column(name = "tag")
-    private List<String> tags;  // 使用 List<String> 存储标签
+
+    private String tags;
+
+    @Column(name = "creation_date")
+    private java.time.OffsetDateTime creationDate;
 
     private Integer score;
 
@@ -52,7 +54,9 @@ public class Thread {
     public void setQuestionId(Integer questionId) {
         this.questionId = questionId;
     }
-
+    public String getTags(){
+        return tags;
+    }
     public String getTitle() {
         return title;
     }
@@ -69,12 +73,13 @@ public class Thread {
         this.body = body;
     }
 
-    public List<String> getTags() {
-        return tags;
+
+    public java.time.OffsetDateTime getCreationDate() {
+        return creationDate;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+    public void setCreationDate(java.time.OffsetDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 
     public Integer getScore() {

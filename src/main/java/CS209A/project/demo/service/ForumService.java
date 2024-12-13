@@ -1,5 +1,6 @@
 package CS209A.project.demo.service;
 
+import CS209A.project.demo.controller.JavatopicsImpl;
 import CS209A.project.demo.repository.AnswerRepository;
 import CS209A.project.demo.repository.CommentRepository;
 import CS209A.project.demo.repository.ThreadRepository;
@@ -31,7 +32,6 @@ public class ForumService {
     public List<Thread> getAllThreads() {
         return threadRepository.findAll();
     }
-
     public List<Answer> getAnswersByThread(Long threadId) {
         return answerRepository.findAllByThreadId(threadId);
     }
@@ -40,7 +40,13 @@ public class ForumService {
         return commentRepository.findAllByAnswerId(answerId);
     }
 
-
+    public List<Map.Entry<String, Integer>> getAllTags(){
+        List<Thread> threads=threadRepository.findAll();
+        List<String> tags=new ArrayList<>();
+        threads.forEach(thread -> {tags.add(thread.getTags());});
+        JavatopicsImpl javatopics=new JavatopicsImpl();
+        return javatopics.Query(tags);
+    }
     public Map<String, Integer> getWordFrequencyInTitles(String word) {
         // 查找标题中包含 "Error" 的所有线程
         List<Thread> threads = threadRepository.findByTitleContaining(word);
@@ -66,7 +72,6 @@ public class ForumService {
 
         return wordCount;
     }
-
     // 获取按频率排序的单词和对应次数的 List
     public List<String> getSortedWordsByFrequency(String word) {
         Map<String, Integer> wordCount = getWordFrequencyInTitles(word);

@@ -28,30 +28,21 @@ public class JavatopicsImpl {
             Count.put(tag,1);
         }
     }
-    public void Query(Connection connection){
-        try {
-            Statement statement = connection.createStatement();
-            String sql = "SELECT * FROM threads";  // 假设有一个 users 表
-            ResultSet resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                String tags = resultSet.getString("tags");
-                List<String> tag_list=cleanString(tags);
-                tag_list.forEach(this::addTag);
-            }
-
-
-            List<Map.Entry<String, Integer>> sortedList = Count.entrySet()
-                    .stream()  // 将 Map 转换为 Stream
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))  // 按值升序排序
-                    .toList();  // 收集成 List
-
-            // 打印排序后的结果
-            sortedList.forEach(entry -> System.out.println(entry.getKey() + ": " + entry.getValue()));
-
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    public List<Map.Entry<String, Integer>> Query(List<String> tags){
+        for(String tag : tags){
+            List<String> tag_list=cleanString(tag);
+            tag_list.forEach(this::addTag);
         }
+
+
+        List<Map.Entry<String, Integer>> sortedList = Count.entrySet()
+                .stream()  // 将 Map 转换为 Stream
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))  // 按值升序排序
+                .toList();  // 收集成 List
+
+        // 打印排序后的结果
+        return sortedList;
+
 
     }
 }
