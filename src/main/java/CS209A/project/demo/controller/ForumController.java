@@ -28,6 +28,19 @@ public class ForumController {
         return forumService.getAllTags();
     }
 
+    @GetMapping("/threads/HigherReputationTags/{score}")
+    public List<Map.Entry<String, Integer>> getHigherReputationTags(@PathVariable Integer score){
+        return forumService.getHotEngagementTopics(score);
+    }
+    @GetMapping("/users")
+    public Map<Integer,Integer> getUserReputation(){
+        return forumService.getUserReputation();
+    }
+
+    @GetMapping("/answers/reputation/{score}")
+    public List<Answer> findHigherReputationAnswer(@PathVariable Integer score){
+        return forumService.findHigherReputationUser(score);
+    }
     @GetMapping("/answers/{threadId}")
     public List<Answer> getAnswersByThread(@PathVariable Long threadId) {
         return forumService.getAnswersByThread(threadId);
