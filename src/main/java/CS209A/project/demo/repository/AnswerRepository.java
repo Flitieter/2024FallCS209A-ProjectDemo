@@ -7,5 +7,7 @@ import java.util.List;
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
     List<Answer> findAllByThreadId(Long threadId);
+
+    List<Answer> findByBodyContaining(String word);
 }
 

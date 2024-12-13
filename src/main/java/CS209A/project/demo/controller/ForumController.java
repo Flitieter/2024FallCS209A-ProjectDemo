@@ -37,4 +37,9 @@ public class ForumController {
     public List<Comment> getCommentsByAnswer(@PathVariable Long answerId) {
         return forumService.getCommentsByAnswer(answerId);
     }
+
+    @GetMapping("/threads/search/{words}")
+    public List<Map<String, Object>> getThreadsByWords(@PathVariable String words) {
+        return forumService.getSortedWordsByFrequency(words);
+    }
 }
