@@ -11,6 +11,7 @@ import CS209A.project.demo.model.Answer;
 import CS209A.project.demo.model.Comment;
 import CS209A.project.demo.model.Thread;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -85,6 +86,69 @@ public class ForumService {
 
         // 打印结果
         return list;
+    }
+    private <T> void addMap(Map<T,Integer> map,T key,int add){
+        if(map.containsKey(key)){
+            map.put(key,map.get(key)+add);
+        }
+        else{
+            map.put(key,add);
+        }
+    }
+    public List<Map<Long,Integer> > analyzeGoodAnswerByDuration(){
+        List<Map<Long,Integer> > ans=new ArrayList<>();
+        List<Answer> answers=answerRepository.findAll();
+        Map<Long,Integer> tot_ans=new HashMap<>();
+        Map<Long,Integer> good_ans=new HashMap<>();
+
+        for(Answer answer:answers){
+            Duration duration = Duration.between(answer.getThread().getCreationDate(), answer.getCreationDate());
+            long hours = duration.toHours();
+            addMap(tot_ans,hours,1);
+            if(answer.getIsAccepted()==1||answer.getScore()>=50){
+                addMap(good_ans,hours,1);
+            }
+        }
+        ans.add(tot_ans);
+        ans.add(good_ans);
+        return ans;
+    }
+
+    public List<Map<Integer,Integer> > analyzeGoodAnswerByReputation(){
+        List<Map<Integer,Integer> > ans=new ArrayList<>();
+        List<Answer> answers=answerRepository.findAll();
+        Map<Integer,Integer> tot_ans=new HashMap<>();
+        Map<Integer,Integer> good_ans=new HashMap<>();
+
+        for(Answer answer:answers){
+            if(answer.getOwnerReputation()==null)continue;
+            int reputation=answer.getOwnerReputation();
+            addMap(tot_ans,reputation,1);
+            if(answer.getIsAccepted()==1||answer.getScore()>=50){
+                addMap(good_ans,reputation,1);
+            }
+        }
+        ans.add(tot_ans);
+        ans.add(good_ans);
+        return ans;
+    }
+
+    public List<Map<Integer,Integer> > analyzeGoodAnswerByComments(){
+        List<Map<Integer,Integer> > ans=new ArrayList<>();
+        List<Answer> answers=answerRepository.findAll();
+        Map<Integer,Integer> tot_ans=new HashMap<>();
+        Map<Integer,Integer> good_ans=new HashMap<>();
+
+        for(Answer answer:answers){
+            int commentNumber=answer.getComments().size();
+            addMap(tot_ans,commentNumber,1);
+            if(answer.getIsAccepted()==1||answer.getScore()>=50){
+                addMap(good_ans,commentNumber,1);
+            }
+        }
+        ans.add(tot_ans);
+        ans.add(good_ans);
+        return ans;
     }
     public List<Map.Entry<String, Integer>> getHotEngagementTopics(int score){
         List<Answer> answers=answerRepository.findHigherReputationUser(score);

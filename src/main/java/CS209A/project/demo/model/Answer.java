@@ -33,7 +33,11 @@ public class Answer {
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
-
+    @Column(name = "creation_date")
+    private java.time.OffsetDateTime creationDate;
+    public java.time.OffsetDateTime getCreationDate(){
+        return this.creationDate;
+    }
     // Getters and Setters
     public Long getId() {
         return id;

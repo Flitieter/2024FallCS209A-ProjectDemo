@@ -1,6 +1,7 @@
 package CS209A.project.demo.controller;
 
 import CS209A.project.demo.service.ForumService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import CS209A.project.demo.model.Answer;
@@ -55,5 +56,20 @@ public class ForumController {
     @GetMapping("/threads/search/{words}")
     public List<Map<String, Object>> getThreadsByWords(@PathVariable String words) {
         return forumService.getSortedWordsByFrequency(words);
+    }
+
+    @GetMapping("/analyze/duration")
+    public List<Map<Long, Integer>> getAnalyzeByDuration(){
+        return forumService.analyzeGoodAnswerByDuration();
+    }
+
+    @GetMapping("/analyze/reputation")
+    public List<Map<Integer, Integer>> getAnalyzeByReputation(){
+        return forumService.analyzeGoodAnswerByReputation();
+    }
+
+    @GetMapping("/analyze/comments")
+    public List<Map<Integer, Integer>> getAnalyzeByComment(){
+        return forumService.analyzeGoodAnswerByComments();
     }
 }
