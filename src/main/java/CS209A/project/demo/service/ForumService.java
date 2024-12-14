@@ -15,6 +15,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -150,61 +151,82 @@ public class ForumService {
         ans.add(good_ans);
         return ans;
     }
-    public List<Map.Entry<String, Integer>> getHotEngagementTopics(int score){
-        List<Answer> answers=answerRepository.findHigherReputationUser(score);
-        List<Comment> comments=commentRepository.findHigherReputationUser(score);
-        List<Thread> threads=threadRepository.findAll();
+    public List<Map<String, Object>> getHotEngagementTopics(int score) {
+        // 获取所有相关的数据
+        List<Answer> answers = answerRepository.findHigherReputationUser(score);
+        List<Comment> comments = commentRepository.findHigherReputationUser(score);
+        List<Thread> threads = threadRepository.findAll();
 
-        Map<Long,Integer> Count=new HashMap<>();
-        for(Answer answer:answers){
-            long thread_id=answer.getThread().getId();
-            if(Count.containsKey(thread_id)){
-                Count.put(thread_id,Count.get(thread_id)+1);
-            }
-            else{
-                Count.put(thread_id,1);
-            }
+        // 统计每个线程的互动次数
+        Map<Long, Integer> count = new HashMap<>();
+        for (Answer answer : answers) {
+            long threadId = answer.getThread().getId();
+            count.put(threadId, count.getOrDefault(threadId, 0) + 1);
         }
 
-        for(Comment comment:comments){
-            long thread_id=comment.getAnswer().getThread().getId();
-            if(Count.containsKey(thread_id)){
-                Count.put(thread_id,Count.get(thread_id)+1);
-            }
-            else{
-                Count.put(thread_id,1);
-            }
+        for (Comment comment : comments) {
+            long threadId = comment.getAnswer().getThread().getId();
+            count.put(threadId, count.getOrDefault(threadId, 0) + 1);
         }
 
-        Map<String,Integer> tags_freq=new HashMap<>();
-        for(Thread thread:threads){
-            long thread_id=thread.getId();
-            if(Count.containsKey(thread_id)){
-                int times=Count.get(thread_id);
-                List<String> tags=cleanString(thread.getTags());
-                for(String tag : tags){
-                    if(tags_freq.containsKey(tag)){
-                        tags_freq.put(tag,tags_freq.get(tag)+times);
-                    }
-                    else{
-                        tags_freq.put(tag,times);
-                    }
+        // 统计每个标签的频次
+        Map<String, Integer> tagsFreq = new HashMap<>();
+        for (Thread thread : threads) {
+            long threadId = thread.getId();
+            if (count.containsKey(threadId)) {
+                int times = count.get(threadId);
+                List<String> tags = cleanString(thread.getTags());
+                for (String tag : tags) {
+                    tagsFreq.put(tag, tagsFreq.getOrDefault(tag, 0) + times);
                 }
             }
         }
 
-        // 打印排序后的结果
-        return tags_freq.entrySet()
-                .stream()  // 将 Map 转换为 Stream
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))  // 按值升序排序
-                .toList();
+        // 转换为 [{ "tag": "标签名", "count": 频次 }] 格式
+        // 按照 count 降序排序
+
+        return tagsFreq.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> tagData = new HashMap<>();
+                    tagData.put("tag", entry.getKey());
+                    tagData.put("count", entry.getValue());
+                    return tagData;
+                })
+                // 按照 count 降序排序
+                .sorted((map1, map2) -> Integer.compare((int) map2.get("count"), (int) map1.get("count")))
+                .collect(Collectors.toList());
     }
-    public List<Map.Entry<String, Integer>> getAllTags(){
-        List<Thread> threads=threadRepository.findAll();
-        List<String> tags=new ArrayList<>();
-        threads.forEach(thread -> {tags.add(thread.getTags());});
-        JavatopicsImpl javatopics=new JavatopicsImpl();
-        return javatopics.Query(tags);
+    public List<Map<String, Object>> getAllTags() {
+        // 获取所有线程
+        List<Thread> threads = threadRepository.findAll();
+
+        // 使用一个列表来存储所有标签
+        List<String> tags = new ArrayList<>();
+
+        // 提取所有标签并去除大括号和空格
+        threads.forEach(thread -> {
+            Arrays.stream(thread.getTags().split(","))
+                    .map(tag -> tag.replaceAll("[{}]", "").trim())  // 去除标签中的大括号和多余的空格
+                    .forEach(tags::add);
+        });
+
+        // 统计每个标签出现的次数
+        Map<String, Integer> tagCountMap = tags.stream()
+                .collect(Collectors.groupingBy(tag -> tag, Collectors.summingInt(tag -> 1)));
+
+        // 转换为结果格式 [{ "tag": "标签名", "count": 频次 }]
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : tagCountMap.entrySet()) {
+            Map<String, Object> tagData = new HashMap<>();
+            tagData.put("tag", entry.getKey());
+            tagData.put("count", entry.getValue());
+            result.add(tagData);
+        }
+
+        // 按照 count 降序排序
+        result.sort((map1, map2) -> Integer.compare((int) map2.get("count"), (int) map1.get("count")));
+
+        return result;
     }
     public Map<String, Integer> getWordFrequencyInTitlesAndAnswers(String word) {
         // 查找包含指定单词的线程标题和正文，或者包含指定单词的回答

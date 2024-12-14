@@ -8,7 +8,6 @@ import CS209A.project.demo.model.Answer;
 import CS209A.project.demo.model.Comment;
 import CS209A.project.demo.model.Thread;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -26,12 +25,12 @@ public class ForumController {
     }
 
     @GetMapping("/threads/tags")
-    public List<Map.Entry<String, Integer>> findAllTags(){
+    public List<Map<String, Object>> findAllTags(){
         return forumService.getAllTags();
     }
 
     @GetMapping("/threads/HigherReputationTags/{score}")
-    public List<Map.Entry<String, Integer>> getHigherReputationTags(@PathVariable Integer score){
+    public List<Map<String, Object>> getHigherReputationTags(@PathVariable Integer score){
         return forumService.getHotEngagementTopics(score);
     }
     @GetMapping("/users")
