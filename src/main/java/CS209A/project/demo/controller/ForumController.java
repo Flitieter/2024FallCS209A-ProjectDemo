@@ -1,7 +1,6 @@
 package CS209A.project.demo.controller;
 
 import CS209A.project.demo.service.ForumService;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import CS209A.project.demo.model.Answer;
@@ -57,18 +56,33 @@ public class ForumController {
         return forumService.getSortedWordsByFrequency(words);
     }
 
-    @GetMapping("/analyze/duration")
-    public List<Map<Long, Integer>> getAnalyzeByDuration(){
-        return forumService.analyzeGoodAnswerByDuration();
+    @GetMapping("/analyze/duration/total")
+    public List<Map<String, Object>> getAnalyzeTotalByDuration(){
+        return forumService.analyzeTotalByDuration();
     }
 
-    @GetMapping("/analyze/reputation")
-    public List<Map<Integer, Integer>> getAnalyzeByReputation(){
-        return forumService.analyzeGoodAnswerByReputation();
+    @GetMapping("/analyze/duration/good")
+    public List<Map<String, Object>> getAnalyzeGoodByDuration(){
+        return forumService.analyzeGoodByDuration();
     }
 
-    @GetMapping("/analyze/comments")
-    public List<Map<Integer, Integer>> getAnalyzeByComment(){
-        return forumService.analyzeGoodAnswerByComments();
+    @GetMapping("/analyze/reputation/total")
+    public List<Map<String, Object>> getAnalyzeTotalByReputation(){
+        return forumService.analyzeTotalByReputation();
+    }
+
+    @GetMapping("/analyze/reputation/good")
+    public List<Map<String, Object>> getAnalyzeGoodByReputation(){
+        return forumService.analyzeGoodByReputation();
+    }
+
+    @GetMapping("/analyze/comments/total")
+    public List<Map<String, Object>> getAnalyzeTotalByComment(){
+        return forumService.analyzeTotalByComments();
+    }
+
+    @GetMapping("/analyze/comments/good")
+    public List<Map<String, Object>> getAnalyzeGoodByComment(){
+        return forumService.analyzeGoodByComments();
     }
 }

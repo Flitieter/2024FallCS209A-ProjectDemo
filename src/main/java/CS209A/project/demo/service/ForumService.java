@@ -96,6 +96,7 @@ public class ForumService {
             map.put(key,add);
         }
     }
+
     public List<Map<Long,Integer> > analyzeGoodAnswerByDuration(){
         List<Map<Long,Integer> > ans=new ArrayList<>();
         List<Answer> answers=answerRepository.findAll();
@@ -114,6 +115,45 @@ public class ForumService {
         ans.add(good_ans);
         return ans;
     }
+
+    public List<Map<String, Object>> analyzeTotalByDuration() {
+        Map<Long, Integer> tot_ans = analyzeGoodAnswerByDuration().get(0);  // 获取总答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 tot_ans 中的数据转换成 JSON 格式 [{ "time": 时间, "count": 答案数量 }]
+        for (Map.Entry<Long, Integer> entry : tot_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("time", entry.getKey());  // 时间（小时）
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照时间（time）升序排序
+        result.sort((map1, map2) -> Long.compare((Long) map1.get("time"), (Long) map2.get("time")));
+
+        return result;  // 返回结果
+    }
+
+
+    public List<Map<String, Object>> analyzeGoodByDuration() {
+        Map<Long, Integer> good_ans = analyzeGoodAnswerByDuration().get(1);  // 获取好答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 good_ans 中的数据转换成 JSON 格式 [{ "time": 时间, "count": 答案数量 }]
+        for (Map.Entry<Long, Integer> entry : good_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("time", entry.getKey());  // 时间（小时）
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照时间（time）升序排序
+        result.sort((map1, map2) -> Long.compare((Long) map1.get("time"), (Long) map2.get("time")));
+
+        return result;  // 返回结果
+    }
+
+
 
     public List<Map<Integer,Integer> > analyzeGoodAnswerByReputation(){
         List<Map<Integer,Integer> > ans=new ArrayList<>();
@@ -134,6 +174,43 @@ public class ForumService {
         return ans;
     }
 
+    public List<Map<String, Object>> analyzeTotalByReputation() {
+        Map<Integer, Integer> tot_ans = analyzeGoodAnswerByReputation().get(0);  // 获取总答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 tot_ans 中的数据转换成 JSON 格式 [{ "reputation": 声誉, "count": 答案数量 }]
+        for (Map.Entry<Integer, Integer> entry : tot_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("reputation", entry.getKey());  // 声誉值
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照声誉值（reputation）升序排序
+        result.sort((map1, map2) -> Integer.compare((Integer) map1.get("reputation"), (Integer) map2.get("reputation")));
+
+        return result;  // 返回结果
+    }
+
+    public List<Map<String, Object>> analyzeGoodByReputation() {
+        Map<Integer, Integer> good_ans = analyzeGoodAnswerByReputation().get(1);  // 获取好答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 good_ans 中的数据转换成 JSON 格式 [{ "reputation": 声誉, "count": 答案数量 }]
+        for (Map.Entry<Integer, Integer> entry : good_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("reputation", entry.getKey());  // 声誉值
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照声誉值（reputation）升序排序
+        result.sort((map1, map2) -> Integer.compare((Integer) map1.get("reputation"), (Integer) map2.get("reputation")));
+
+        return result;  // 返回结果
+    }
+
+
     public List<Map<Integer,Integer> > analyzeGoodAnswerByComments(){
         List<Map<Integer,Integer> > ans=new ArrayList<>();
         List<Answer> answers=answerRepository.findAll();
@@ -151,6 +228,44 @@ public class ForumService {
         ans.add(good_ans);
         return ans;
     }
+
+    public List<Map<String, Object>> analyzeTotalByComments() {
+        Map<Integer, Integer> tot_ans = analyzeGoodAnswerByComments().get(0);  // 获取总答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 tot_ans 中的数据转换成 JSON 格式 [{ "commentNumber": 评论数, "count": 答案数量 }]
+        for (Map.Entry<Integer, Integer> entry : tot_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("commentNumber", entry.getKey());  // 评论数
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照评论数（commentNumber）升序排序
+        result.sort((map1, map2) -> Integer.compare((Integer) map1.get("commentNumber"), (Integer) map2.get("commentNumber")));
+
+        return result;  // 返回结果
+    }
+
+    public List<Map<String, Object>> analyzeGoodByComments() {
+        Map<Integer, Integer> good_ans = analyzeGoodAnswerByComments().get(1);  // 获取好答案的数据
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        // 将 good_ans 中的数据转换成 JSON 格式 [{ "commentNumber": 评论数, "count": 答案数量 }]
+        for (Map.Entry<Integer, Integer> entry : good_ans.entrySet()) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("commentNumber", entry.getKey());  // 评论数
+            data.put("count", entry.getValue());  // 答案数量
+            result.add(data);
+        }
+
+        // 按照评论数（commentNumber）升序排序
+        result.sort((map1, map2) -> Integer.compare((Integer) map1.get("commentNumber"), (Integer) map2.get("commentNumber")));
+
+        return result;  // 返回结果
+    }
+
+
     public List<Map<String, Object>> getHotEngagementTopics(int score) {
         // 获取所有相关的数据
         List<Answer> answers = answerRepository.findHigherReputationUser(score);

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Errors from "../views/Errors.vue";
 import Tags from "@/views/Tags.vue";
 import HighReputationTags from "@/views/HighReputationTags.vue";
+import Analyze from "@/views/Analyze.vue";
 
 const routes = [
     {
@@ -18,6 +19,11 @@ const routes = [
         path: "/tags/reputation/:score",
         name: "HighReputationTags",
         component: HighReputationTags,
+    },
+    {
+        path: "/analyze",
+        name: "Analyze",
+        component: Analyze,
     },
     {
         path: "/:pathMatch(.*)*", // 这个路径用于捕捉所有未匹配的路径
