@@ -47,7 +47,7 @@
 
 <script>
 import axios from "axios";
-import { Chart, CategoryScale, LinearScale, BarElement, BarController, Title, Tooltip, Legend } from "chart.js";
+import { Chart, CategoryScale, LinearScale, BarElement, BarController, Title, Tooltip, Legend} from "chart.js";
 
 // 注册所需模块
 Chart.register(CategoryScale, LinearScale, BarElement, BarController, Title, Tooltip, Legend);

@@ -233,11 +233,12 @@ public class ForumService {
         Map<Integer, Integer> tot_ans = analyzeGoodAnswerByComments().get(0);  // 获取总答案的数据
         List<Map<String, Object>> result = new ArrayList<>();
 
-        // 将 tot_ans 中的数据转换成 JSON 格式 [{ "commentNumber": 评论数, "count": 答案数量 }]
+        // 将 tot_ans 中的数据转换成 JSON 格式 [{ "count": 答案数量, "commentNumber": 评论数 }]
         for (Map.Entry<Integer, Integer> entry : tot_ans.entrySet()) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("commentNumber", entry.getKey());  // 评论数
+            Map<String, Object> data = new LinkedHashMap<>();  // 使用 LinkedHashMap 来保持插入顺序
+
             data.put("count", entry.getValue());  // 答案数量
+            data.put("commentNumber", entry.getKey());  // 评论数
             result.add(data);
         }
 
@@ -251,11 +252,12 @@ public class ForumService {
         Map<Integer, Integer> good_ans = analyzeGoodAnswerByComments().get(1);  // 获取好答案的数据
         List<Map<String, Object>> result = new ArrayList<>();
 
-        // 将 good_ans 中的数据转换成 JSON 格式 [{ "commentNumber": 评论数, "count": 答案数量 }]
+        // 将 good_ans 中的数据转换成 JSON 格式 [{ "count": 答案数量, "commentNumber": 评论数 }]
         for (Map.Entry<Integer, Integer> entry : good_ans.entrySet()) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("commentNumber", entry.getKey());  // 评论数
+            Map<String, Object> data = new LinkedHashMap<>();  // 使用 LinkedHashMap 来保持插入顺序
+
             data.put("count", entry.getValue());  // 答案数量
+            data.put("commentNumber", entry.getKey());  // 评论数
             result.add(data);
         }
 
@@ -264,6 +266,8 @@ public class ForumService {
 
         return result;  // 返回结果
     }
+
+
 
 
     public List<Map<String, Object>> getHotEngagementTopics(int score) {
