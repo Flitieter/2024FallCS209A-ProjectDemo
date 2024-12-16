@@ -89,10 +89,17 @@ public class ForumController {
     public Integer getThreadsMistakesByName(@PathVariable String name) {
         List<Map<String, Object>> list_error = forumService.getSortedWordsByFrequency("error");
         List<Map<String, Object>> list_exception = forumService.getSortedWordsByFrequency("exception");
-        list_error.addAll(list_exception);
-        list_error.sort((map1, map2) -> Integer.compare((Integer) map2.get("count"), (Integer) map1.get("count")));
+        //list_error.addAll(list_exception);
+        //list_error.sort((map1, map2) -> Integer.compare((Integer) map2.get("count"), (Integer) map1.get("count")));
         for (Map<String, Object> map : list_error) {
             if (map.get("word").equals(name)) {
+                System.out.println("YES" + map.get("count"));
+                return (Integer) map.get("count");
+            }
+        }
+        for (Map<String, Object> map : list_exception) {
+            if (map.get("word").equals(name)) {
+                System.out.println("YES" + map.get("count"));
                 return (Integer) map.get("count");
             }
         }
